@@ -1,0 +1,51 @@
+*jira.txt*      Plug-in for working with Jira through Vim
+
+Author:         Speedyleion
+License:        The Unlicense. For more information, please refer to
+                <http://unlicense.org>
+
+==============================================================================
+Contents                                                       *jira-contents*
+
+        1. Intro ............................ |jira-intro|
+        2. Commands ......................... |jira-commands|
+        
+        
+
+==============================================================================
+1. Intro                                                          *jira-intro*
+
+Jira is a plugin for working with Jira issues inside of Vim.  It will provide
+a side bar for viewing and editing Jira issues.
+
+
+INTRODUCTION                                    *jira*
+
+FILL_ME_OUT
+
+==============================================================================
+2. Commands                                                    *jira-commands*
+
+
+:JiraBrowse                                                      *:JiraBrowse*
+    When in the __Jira__ window this will open the current Jira issue in a web
+    browser.  This uses Netrw as the launcher so set up there as needed.
+
+:JiraOpen [Issue]                                                  *:JiraOpen*
+    This will open the Jira window.  If the argument is omitted it will just
+    open an empty window
+
+==============================================================================
+3. Configuration                                          *jira-configuration*
+
+                                                             *g:jira_vertical*
+g:jira_vertical~
+    This determines if the Jira window shall be opeened vertically or
+    horizontally.  '1' means vertical '0' means horizontal.
+
+    Default: 1
+
+    Example:
+    >
+        let g:jira_vertical = 0
+<
