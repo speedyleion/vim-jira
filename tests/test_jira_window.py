@@ -7,12 +7,23 @@ import os
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 
-
-class TestWindowCreation(unittest.TestCase):
+class VimTest(unittest.TestCase):
     """
-    This is the class that tests the basic creation of the jira window.
-    """
+    This is the class that all tests for working with Vim should derive from.
 
+    If you are playing on windows you may need to hack up vimrunner to work.  The biggest
+    issue is telling vimrunner to use splitlines() instead of split('\n').
+
+    Do to the use of vimrunner and its backend functionality these don't seem to work with
+    nose2.  As such just call them directly or try running unittest.
+
+    Attributes:
+        vim(vimrunner.Server): Main vim server.  Not sure this really needs to be exposed.
+
+        client(vimrunner.Client): This is the remote client that is started for tests.  All
+                                  queries and commands should be ran through this.
+
+    """
     def setUp(self):
         """
         This just creates a vim server instance.
@@ -25,10 +36,18 @@ class TestWindowCreation(unittest.TestCase):
         self.client = self.vim.start_gvim()
         self.client.add_plugin(dirname + '/../', 'plugin/jira.vim')
 
+        # Add Netrw,
+        self.client.add_plugin(os.path.dirname(self.vim.executable),
+                               'plugin/netrwPlugin.vim')
+
     def tearDown(self):
         self.client.quit()
-        # pass
 
+
+class TestWindowCreation(VimTest):
+    """
+    This is the class that tests the basic creation of the jira window.
+    """
     def testDefaultOpenWindow(self):
         """
         This will test the opening of the window and that it is in the correct
@@ -45,35 +64,27 @@ class TestWindowCreation(unittest.TestCase):
                          "`__Jira__`; Got %s"
                          % (bufname))
 
-        # height = int(self.client.eval('winheight(0)'))
-        # expected_height = int(self.vim.remote_expr('g:jira_height'))
-        # self.assertEqual(height, expected_height, "Expected %s, but got %s."
-        #                  %(expected_height, height))
+        # Check the contents were retrieved for the issue
+        buf_contents = self.client.read_buffer(1, '"$"').splitlines()
+        expected_contents = ['Test July issue in jira', 'Disription to first Jira ticket.']
+        self.assertEqual(buf_contents, expected_contents,
+                         'Incorrect content data or formatting.')
 
-    # def testConfiguredOpenWindow(self):
-    #     """
-    #     This will change the settings so that the window is on top and that the
-    #     height is different than the default
-    #     """
-    #     # Change the default values
-    #     self.client.command('let g:jira_vertical=0')
-    #     # expected_height = 5
-    #     # self.client.command('let g:jira_height=' + str(expected_height))
-    #     self.client.command("JiraOpen")
+    def testURL(self):
+        """
+        This will test for a non default setting to `g:jira_url`.
 
-    #     winnr = self.client.eval('winnr()')
-    #     self.assertEqual(winnr, '1', "Jira buffer should be the "
-    #                      "first one")
+        I just did a quick scrape for a publicly visible Jira server so this test may be a
+        little fragile, though I would hope Apache keeps it around for a while.
 
-    #     bufname = self.client.eval('bufname("")')
+        """
+        self.client.command('let g:jira_url="https://issues.apache.org/jira"')
+        self.client.command('JiraOpen "SPARK-9278"')
 
-    #     self.assertEqual(bufname, '__Jira__', "Expecting "
-    #                      "`__Jira__`; Got %s"
-    #                      % (bufname))
-
-        # height = int(self.client.eval('winheight(0)'))
-        # self.assertEqual(height, expected_height, "Expected %s, but got %s."
-        #                  %(expected_height, height))
+        buf_contents = self.client.read_buffer(1, '"$"').splitlines()
+        expected_summary = 'DataFrameWriter.insertInto inserts incorrect data'
+        self.assertEqual(buf_contents[0], expected_summary,
+                         'Incorrect Summary for SPARK-9278.')
 
 if __name__ == '__main__':
     unittest.main()

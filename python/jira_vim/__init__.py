@@ -6,9 +6,10 @@ import jira
 import vim
 
 # Remote debugging
-import sys
-sys.path.append('c:/Program Files (x86)/JetBrains/PyCharm 5.0.3/debug-eggs/pycharm-debug.egg')
-import pydevd
+# import sys
+# # sys.path.append('c:/Program Files (x86)/JetBrains/PyCharm 5.0.3/debug-eggs/pycharm-debug.egg')
+# import pydevd
+
 
 def get_issue(issue, url=None):
     """

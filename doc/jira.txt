@@ -27,16 +27,32 @@ FILL_ME_OUT
 2. Commands                                                    *jira-commands*
 
 
-:JiraBrowse                                                      *:JiraBrowse*
-    When in the __Jira__ window this will open the current Jira issue in a web
-    browser.  This uses Netrw as the launcher so set up there as needed.
+:JiraBrowse [Issue]                                              *:JiraBrowse*
+    This will open up the Jira issue in a browser.  If Issue is omited and the
+    user is currently in a Jira buffer, this will open the issue for the
+    current Jira buffer.
+    
+    This uses Netrw as the launcher so set up there as needed for which
+    browser.
 
 :JiraOpen [Issue]                                                  *:JiraOpen*
     This will open the Jira window.  If the argument is omitted it will just
-    open an empty window
+    open an empty window.  The issue needs to be a string so make sure that
+    you quote it. i.e. "PROJ-1234".
 
 ==============================================================================
 3. Configuration                                          *jira-configuration*
+
+                                                                  *g:jira_url*
+g:jira_url~
+    This is the url to use for Jira queries and issue look ups.
+
+    Default: 'https://jira.atlassian.com'
+
+    Example:
+    >
+        let g:jira_url = 'https://jira.my_domain.com'
+<
 
                                                              *g:jira_vertical*
 g:jira_vertical~
@@ -49,3 +65,4 @@ g:jira_vertical~
     >
         let g:jira_vertical = 0
 <
+ vim:tw=78:ts=8:ft=help:norl:

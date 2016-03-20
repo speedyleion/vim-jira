@@ -31,9 +31,34 @@ function! jira#OpenWindow(...) abort
     " Get the Issue information
     if a:0 > 0
         let b:issue = a:1
-        exe 'python jira_vim.get_issue("'.b:issue.'", url="https://jira.atlassian.com")'
+        exe 'python jira_vim.get_issue("'.b:issue.'", url="'.g:jira_url.'")'
     endif
 
+endfunction
+" }}}
+
+" jira#BrowseIssue()
+" Parameters:
+"   Issue(string): The issue to launch in a browser
+"       This can be empty then b:issue will be used.  If neither is given this
+"       will return 0
+"       {{{1
+function! jira#BrowseIssue(...) abort
+    " Get the Issue information
+    if a:0 > 0
+        let l:issue = a:1
+    else
+        try
+            let l:issue = b:issue
+        catch E2
+            return 0
+        endtry
+    endif
+
+    " Stitch the jira url and the issue number together then kick off NETRW
+    let l:issue_url = g:jira_url . '/browse/' . l:issue
+    call netrw#NetrwBrowseX(l:issue_url, 0)
+    return 1
 endfunction
 " }}}
 
