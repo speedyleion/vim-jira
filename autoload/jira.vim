@@ -9,30 +9,28 @@ exe 'python sys.path = sys.path + ["' . s:plugin_path . '/python"]'
 py import jira_vim
 "}}}
 
-" Initialization {{{1
-let s:window_name = '__Jira__'
-" }}}
 
 " jira#OpenWindow()
 " Parameters:
 "   Issue(string): The issue information to fill the buffer with.
-"       This can be empty
 "       {{{1
-function! jira#OpenWindow(...) abort
-    let l:buf_num = bufnr('%')
-    " let openpos = g:jira_botright ? 'botright ' : 'topleft ' 
+function! jira#OpenWindow(issue) abort
+
     let split = g:jira_vertical ? 'vsplit ' : 'split '
-    " exe 'silent keepalt ' . openpos . g:jira_width . split
-    exe 'silent keepalt botright ' . split . s:window_name
-    
+
+    " Open the buffer
+    exe 'silent keepalt botright ' . split . a:issue
 
     setlocal filetype=jira
 
+    " Adding '-' to the keyword since Jira issues are usually JIRA-1234
+    setlocal iskeyword+=-
+
+    " Add a variable for holding the issue number
+    let b:issue=a:issue
+
     " Get the Issue information
-    if a:0 > 0
-        let b:issue = a:1
-        exe 'python jira_vim.get_issue("'.b:issue.'", url="'.g:jira_url.'")'
-    endif
+    exe 'python jira_vim.get_issue("'.a:issue.'", url="'.g:jira_url.'")'
 
 endfunction
 " }}}
@@ -50,7 +48,7 @@ function! jira#BrowseIssue(...) abort
     else
         try
             let l:issue = b:issue
-        catch E2
+        catch /^Vim\%((\a\+)\)\=:E121/	
             return 0
         endtry
     endif

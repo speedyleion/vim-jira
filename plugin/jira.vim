@@ -15,7 +15,10 @@ let g:jira_url = get(g:, 'jira_url', 'https://jira.atlassian.com')
  
 " Commands {{{1
     " TODO need to see about working with completion on these
+    
 command! -nargs=? JiraOpen call jira#OpenWindow(<args>)
+
+    " TODO this needs an actual test, currently not tested :(
 command! -nargs=? JiraBrowse call jira#BrowseIssue(<args>)
 "}}}
 

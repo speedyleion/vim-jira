@@ -7,6 +7,7 @@ import os
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 
+
 class VimTest(unittest.TestCase):
     """
     This is the class that all tests for working with Vim should derive from.
@@ -53,15 +54,22 @@ class TestWindowCreation(VimTest):
         This will test the opening of the window and that it is in the correct
         location and it obeys the global variables set.
         """
-        self.client.command('JiraOpen "DEMO-9266"')
+        self.client.command('JiraOpen "DEMO-4589"')
 
         winnr = self.client.eval('winnr()')
         self.assertEqual(winnr, '2', "Jira window should be the second one")
 
+        # Check the sizing of the window
+        sizes = self.client.eval('winrestcmd()')
+        expected_sizes = '1resize 23|vert 1resize 39|2resize 23|vert 2resize 40|'
+        self.assertEqual(sizes, expected_sizes,
+                         "Window didn't appear to split vertically")
+
+        # TODO this should probably be a temp file for the issue
         bufname = self.client.eval('bufname("")')
 
-        self.assertEqual(bufname, '__Jira__', "Expecting "
-                         "`__Jira__`; Got %s"
+        self.assertEqual(bufname, 'DEMO-4589', "Expecting "
+                         "`DEMO-4589`; Got %s"
                          % (bufname))
 
         # Check the contents were retrieved for the issue
@@ -85,6 +93,19 @@ class TestWindowCreation(VimTest):
         expected_summary = 'DataFrameWriter.insertInto inserts incorrect data'
         self.assertEqual(buf_contents[0], expected_summary,
                          'Incorrect Summary for SPARK-9278.')
+
+    def testHorizontal(self):
+        """
+        This will test with `g:jira_vertical` set to 0, meaning open a horizontal window.
+
+        """
+        self.client.command('let g:jira_vertical=0')
+        self.client.command('JiraOpen "DEMO-9266"')
+
+        sizes = self.client.eval('winrestcmd()')
+        expected_sizes = '1resize 11|vert 1resize 80|2resize 11|vert 2resize 80|'
+        self.assertEqual(sizes, expected_sizes,
+                         "Window didn't appear to split horizontally")
 
 if __name__ == '__main__':
     unittest.main()

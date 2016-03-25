@@ -16,7 +16,7 @@ Contents                                                       *jira-contents*
 1. Intro                                                          *jira-intro*
 
 Jira is a plugin for working with Jira issues inside of Vim.  It will provide
-a side bar for viewing and editing Jira issues.
+a window for viewing and editing Jira issues.
 
 
 INTRODUCTION                                    *jira*
