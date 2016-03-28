@@ -4,6 +4,7 @@
 " Python imports {{{1
 let s:plugin_path = escape( expand( '<sfile>:p:h:h' ), '\' )
 py import sys
+py import vim
 " May want to consider prepending this
 exe 'python sys.path = sys.path + ["' . s:plugin_path . '/python"]' 
 py import jira_vim
@@ -30,7 +31,8 @@ function! jira#OpenWindow(issue) abort
     let b:issue=a:issue
 
     " Get the Issue information
-    exe 'python jira_vim.get_issue("'.a:issue.'", url="'.g:jira_url.'")'
+    exe 'python jira_vim.get_issue("'.a:issue.'", url="'.g:jira_url. 
+            \ '", sections=vim.vars["jira_fields"])'
 
 endfunction
 " }}}

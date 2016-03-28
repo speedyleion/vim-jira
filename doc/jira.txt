@@ -28,24 +28,24 @@ FILL_ME_OUT
 
 
 :JiraBrowse [Issue]                                              *:JiraBrowse*
-    This will open up the Jira issue in a browser.  If Issue is omited and the
-    user is currently in a Jira buffer, this will open the issue for the
-    current Jira buffer.
+    Open up the Jira issue in a browser.  If Issue is omited and the user is
+    currently in a Jira buffer, this will open the issue for the current Jira
+    buffer.
     
     This uses Netrw as the launcher so set up there as needed for which
     browser.
 
 :JiraOpen [Issue]                                                  *:JiraOpen*
-    This will open the Jira window.  If the argument is omitted it will just
-    open an empty window.  The issue needs to be a string so make sure that
-    you quote it. i.e. "PROJ-1234".
+    Open the Jira window.  If the argument is omitted it will just open an
+    empty window.  The issue needs to be a string so make sure that you quote
+    it. i.e. "PROJ-1234".
 
 ==============================================================================
 3. Configuration                                          *jira-configuration*
 
                                                                   *g:jira_url*
 g:jira_url~
-    This is the url to use for Jira queries and issue look ups.
+    The url to use for Jira queries and issue look ups.
 
     Default: 'https://jira.atlassian.com'
 
@@ -56,8 +56,8 @@ g:jira_url~
 
                                                              *g:jira_vertical*
 g:jira_vertical~
-    This determines if the Jira window shall be opeened vertically or
-    horizontally.  '1' means vertical '0' means horizontal.
+    Determines if the Jira window shall be opened vertically or horizontally.
+    '1' means vertical '0' means horizontal.
 
     Default: 1
 
@@ -65,4 +65,33 @@ g:jira_vertical~
     >
         let g:jira_vertical = 0
 <
+
+                                                               *g:jira_fields*
+g:jira_fields~
+    
+    A list of dictionary entries to specify the sections to display in the
+    Jira window.  The key is the full attribute path from `jira.issue.fields`.
+    The value is the section title to display.
+
+    The full attribute path should lead to some kind of string representation
+    no parsing logic, other than word wrapping will be applied.
+
+    In order to highlight properly with the syntax you'll need to ensure that
+    the section title ends with ':'.
+
+    Default:
+    >
+             [{'summary': 'Summary:'},
+           \  {'status.name': 'Status:'},
+           \  {'assignee.displayName': 'Assignee:'},
+           \  {'description': 'Description:'}])
+<
+    Example:  TODO add a custom field from the example
+    >
+        let g:jira_fields =   [{'summary': 'Summary:'},
+                            \  {'status.name': 'Status:'},
+                            \  {'assignee.displayName': 'Assignee:'},
+                            \  {'description': 'Description:'}])
+<
+
  vim:tw=78:ts=8:ft=help:norl:

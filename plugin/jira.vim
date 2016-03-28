@@ -11,6 +11,10 @@ let g:loaded_jira=1
 " let g:jira_botright = get(g:, 'jira_botright', 1)
 let g:jira_vertical = get(g:, 'jira_vertical', 1)
 let g:jira_url = get(g:, 'jira_url', 'https://jira.atlassian.com')
+let g:jira_fields = get(g:, 'jira_fields', [{'summary': 'Summary:'},
+                                         \  {'status.name': 'Status:'},
+                                         \  {'assignee.displayName': 'Assignee:'},
+                                         \  {'description': 'Description:'}])
 " }}}
  
 " Commands {{{1

@@ -4,6 +4,7 @@
 
 import jira
 import vim
+import operator
 
 # Remote debugging
 # import sys
@@ -16,7 +17,7 @@ SECTIONS = [{'summary': 'Summary:'}, {'status': 'Status:'}, {'assignee': 'Assign
             {'description': 'Description:'}]
 
 
-def get_issue(issue, url=None):
+def get_issue(issue, url=None, sections=None):
     """
     This will get the `issue` information from the Jira server at `url`. The
     `issue` information will be placed into the buffer at the current cursor
@@ -39,10 +40,13 @@ def get_issue(issue, url=None):
     else:
         options = None
 
-    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
+    if not sections:
+        sections = SECTIONS
+
     local_jira = jira.JIRA(options=options)
     jira_issue = local_jira.issue(issue)
 
+    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
     buf = vim.current.buffer
 
     # For empty buffers appending always leaves a blank line, so check for it and clean up
@@ -53,18 +57,10 @@ def get_issue(issue, url=None):
         delete_first_line = False
 
     # Go through each section and add the section title followed by the section contents
-    for section in SECTIONS:
+    for section in sections:
         for key in section:
             buf.append(section[key])
-            content = getattr(jira_issue.fields, key)
-
-            # Favor display name, and then name, and then finally hopefully it's a text
-            # element
-            if hasattr(content, 'displayName'):
-                content = content.displayName
-            elif hasattr(content, 'name'):
-                content = content.name
-
+            content = operator.attrgetter(key)(jira_issue.fields)
             buf.append(content)
             buf.append('\n')
 
