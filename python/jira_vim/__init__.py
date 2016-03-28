@@ -5,6 +5,7 @@
 import jira
 import vim
 import operator
+import textwrap
 
 # Remote debugging
 # import sys
@@ -46,7 +47,6 @@ def get_issue(issue, url=None, sections=None):
     local_jira = jira.JIRA(options=options)
     jira_issue = local_jira.issue(issue)
 
-    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
     buf = vim.current.buffer
 
     # For empty buffers appending always leaves a blank line, so check for it and clean up
@@ -56,13 +56,36 @@ def get_issue(issue, url=None, sections=None):
     else:
         delete_first_line = False
 
+    # Handle wrapping of text
+    width = int(vim.eval('&tw'))
+    if not width:
+        width = 80
+    wrapper = textwrap.TextWrapper(width=width, initial_indent='    ',
+                                   break_on_hyphens=False)
+
     # Go through each section and add the section title followed by the section contents
     for section in sections:
         for key in section:
             buf.append(section[key])
             content = operator.attrgetter(key)(jira_issue.fields)
-            buf.append(content)
+            buf.append(wrapper.wrap(content))
             buf.append('\n')
+
+
+    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
+
+    # Comments get handled special, really should handle this in main sections but for now
+    # leave it separate
+    buf.append('Comments:')
+    wrapper.initial_indent += '    '
+    for comment in jira_issue.fields.comment.comments:
+        # HACK need to get better handling for non english characters
+        buf.append('    ' + comment.author.displayName.encode('ascii', errors='replace') +
+                   '    ' + comment.created)
+
+        content = comment.body
+        buf.append(wrapper.wrap(content))
+        buf.append('\n')
 
     if delete_first_line:
         del buf[0]
