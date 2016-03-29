@@ -6,6 +6,8 @@ import jira
 import vim
 import operator
 import textwrap
+import time
+import calendar
 
 # Remote debugging
 # import sys
@@ -80,8 +82,13 @@ def get_issue(issue, url=None, sections=None):
     wrapper.initial_indent += '    '
     for comment in jira_issue.fields.comment.comments:
         # HACK need to get better handling for non english characters
-        buf.append('    ' + comment.author.displayName.encode('ascii', errors='replace') +
-                   '    ' + comment.created)
+        name = comment.author.displayName.encode('ascii', errors='replace')
+        comment_time = format_time(comment.created, "%x %X")
+
+        # For comments have first line be name and then push the time all the way out by the
+        # width
+        buf.append('{}{:>{width}}'.format('    ' + name, comment_time,
+                   width=width-len(name)))
 
         content = comment.body
         buf.append(wrapper.wrap(content))
@@ -89,3 +96,38 @@ def get_issue(issue, url=None, sections=None):
 
     if delete_first_line:
         del buf[0]
+
+
+def format_time(time_str, format):
+    """
+    This will take a time from Jira and format it into the specified string.  The time will
+    also be converted from UTC to local time.
+
+    Jira time format is assumed to be, "YYYY-MM-DDTHH:MM:SS.ssss+0000". Where "T" is the
+    literal character guessing it means "time". "ssss" are interpreted as fractions of
+    seconds "+0000" is the timezone offset from UTC.
+
+    Args:
+        time_str (string): Time returned from :class:`jira.issue`
+
+        format (string): String to specify how to format the resultant time.  You'll want to
+                       look at :func:`time.strftime` for the format options.
+
+    Returns: A string representing the local version of `time` formated according to
+             `format`.
+
+    """
+
+    # Strip off the trailing timezone
+    # HACK FOR NOW ALWAYS ASSUME "+0000"
+    just_time, zone = time_str.split('+')
+
+    # Just drop the fractional seconds
+    just_time, _ = just_time.split('.')
+
+    parsed_time = time.strptime(just_time, "%Y-%m-%dT%H:%M:%S")
+
+    # Convert from UTC to seconds and from seconds to local
+    local_time = time.gmtime(calendar.timegm(parsed_time))
+
+    return time.strftime(format, local_time)
