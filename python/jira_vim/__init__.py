@@ -76,15 +76,19 @@ def get_issue(issue, url=None, sections=None):
     wrapper = textwrap.TextWrapper(width=width, initial_indent='    ',
                                    break_on_hyphens=False)
 
+    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
+
     # Go through each section and add the section title followed by the section contents
     for section in sections:
         for key in section:
             buf.append(section[key])
-            content = operator.attrgetter(key)(jira_issue.fields)
+            try:
+                content = operator.attrgetter(key)(jira_issue.fields)
+            except AttributeError:
+                content = 'None'
+
             buf.append(wrapper.wrap(content))
             buf.append('\n')
-
-    # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
 
     # Comments get handled special, really should handle this in main sections but for now
     # leave it separate
