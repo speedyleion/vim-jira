@@ -8,6 +8,7 @@ import operator
 import textwrap
 import time
 import calendar
+import netrc
 
 # Remote debugging
 # import sys
@@ -46,7 +47,17 @@ def get_issue(issue, url=None, sections=None):
     if not sections:
         sections = SECTIONS
 
-    local_jira = jira.JIRA(options=options)
+    # HACK not fond of this but want an easy way to not hard code username and password
+    basic_auth = None
+    try:
+        user_net = netrc.netrc()
+        if url in user_net.hosts:
+            info = user_net.authenticators(url)
+            basic_auth = (info[0], info[2])
+    except netrc.NetrcParseError:
+        pass
+
+    local_jira = jira.JIRA(options=options, basic_auth=basic_auth)
     jira_issue = local_jira.issue(issue)
 
     buf = vim.current.buffer
@@ -72,7 +83,6 @@ def get_issue(issue, url=None, sections=None):
             content = operator.attrgetter(key)(jira_issue.fields)
             buf.append(wrapper.wrap(content))
             buf.append('\n')
-
 
     # pydevd.settrace('localhost', port=25252, stdoutToServer=True, stderrToServer=True)
 
